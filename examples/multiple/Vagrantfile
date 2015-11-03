@@ -1,0 +1,27 @@
+Vagrant.configure(2) do |config|
+
+    config.vm.define "node1" do |node|
+        node.vm.box = "ubuntu/trusty64"
+        node.vm.provider "virtualbox" do |vb|
+            vb.customize ["modifyvm", :id, "--memory", "256"]
+        end
+    end
+
+    config.vm.define "node2" do |node|
+        node.vm.box = "bento/centos-7.1"
+        node.vm.provider "virtualbox" do |vb|
+            vb.customize ["modifyvm", :id, "--memory", "256"]
+        end
+    end
+
+
+    #--
+    #-- If you've installed the "vagrant-triggers" plugin:
+    #-- https://github.com/emyl/vagrant-triggers
+    #--
+    #config.trigger.after :up, :force => true do
+    #    info "Generating Ansible inventory file..."
+    #    run  "vag2inv --vm -f --stdout HOSTS-VAGRANT"
+    #end
+
+end

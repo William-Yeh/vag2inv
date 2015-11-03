@@ -1,0 +1,5 @@
+vag2inv:
+  build: .
+
+  volumes:
+   - ./dist:/dist

@@ -1,0 +1,4 @@
+- hosts: all
+  tasks:
+    - name: show Linux kernel version
+      debug: msg={{ ansible_kernel }}

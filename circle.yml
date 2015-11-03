@@ -1,0 +1,18 @@
+machine:
+  services:
+    - docker
+
+dependencies:
+  override:
+    - docker info
+    - docker version
+
+    - docker build  -t img   .
+
+test:
+  override:
+    - docker run -v $CIRCLE_ARTIFACTS:/dist  img
+    - $CIRCLE_ARTIFACTS/vag2inv-linux-x86_64 --help > result
+
+    - echo "==> Validating the test results..."
+    - sh -c "[ -s result ]"
