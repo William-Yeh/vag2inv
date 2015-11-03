@@ -135,7 +135,7 @@ In the `examples/single` directory:
    vag2inv --vm -f HOSTS-VAGRANT
    ```
 
-#### Multiple managed nodees
+#### Multiple managed nodes
 
 In the `examples/multiple` directory:
 
