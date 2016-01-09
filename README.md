@@ -4,9 +4,11 @@ vag2inv
 [![Circle CI](https://circleci.com/gh/William-Yeh/vag2inv.svg?style=shield)](https://circleci.com/gh/William-Yeh/vag2inv) [![Build Status](https://travis-ci.org/William-Yeh/vag2inv.svg?branch=master)](https://travis-ci.org/William-Yeh/vag2inv)
 
 
-This program generates Ansible inventory file by investigating status from a set of running Vagrant boxes.
+This program generates Ansible inventory file by investigating runtime information from a set of running Vagrant boxes.
 
-It was initially invented as an auxiliary tool for running Ansible + Vagrant under the Windows host machine. Under such circumstances, Ansible is not natively supported; the Vagrant's "[Ansible provisioner mechanism](https://docs.vagrantup.com/v2/provisioning/ansible.html)" is unavailable, let alone the `.vagrant/provisioners/ansible/inventory/vagrant_ansible_inventory` file. This program helps generate appropriate inventory file for Ansible to use.
+It was initially invented as an auxiliary tool for running Ansible + Vagrant under the Windows host machine. Under such circumstances, Ansible is not natively supported; the Vagrant's "[Ansible provisioner mechanism](https://docs.vagrantup.com/v2/provisioning/ansible.html)" is unavailable, let alone the `.vagrant/provisioners/ansible/inventory/vagrant_ansible_inventory` file.
+
+To solve this problem, this **vag2inv** program helps generate appropriate inventory file for Ansible to use. For step-by-step instruction, watch my 14-minute video: 【[在 Windows 上也能使用 Ansible](http://school.soft-arch.net/courses/ansible/lectures/659421)】 (spoken in Mandarin).
 
 Of course, this program is not limited to Windows users. Users of other platforms still benefits from this program if they want an Ansible-centric workflow, and dislike the lenghy path `.vagrant/provisioners/ansible/inventory/vagrant_ansible_inventory`.
 
@@ -214,6 +216,8 @@ It will place the `vag2inv-i386.exe`, `vag2inv-x86_64.exe`, etc. executables int
 
 
 ## History
+
+- 0.2 - Also check "enp0s3" (in addition to "eth0").
 
 - 0.1 - Initial release.
 

@@ -198,16 +198,31 @@ func parse_host_entry(host_entry string) host_info {
 	return info
 }
 
-// It queries internal IPv4 address of specific Vagrant box via "ifconfig eth0".
+// It queries internal IPv4 address of specific Vagrant box
+// via "ifconfig" on "enp0s3" or "eth0".
+//
+// NOTE: Linux with systemd may use the "enp0s3" name:
+//   - http://askubuntu.com/questions/704035/no-eth0-listed-in-ifconfig-a-only-enp0s3-and-lo
+//   - http://linuxconfig.org/configuring-network-interface-with-static-ip-address-on-rhel-7
+//
 func query_host_eth0_ipv4(host_name string) string {
-	out, err := exec.Command("vagrant", "ssh", host_name, "-c", "ifconfig eth0").Output()
-	if err != nil {
-		fmt.Println("ERR: ", out)
-		log.Fatal("Error inspecting 'vagrant ssh ", host_name, " -c ' ; ", err)
+
+	var ifconfig_output []byte
+	for _, ifname := range []string{"enp0s3", "eth0"} {
+		out, err := exec.Command("vagrant", "ssh", host_name, "-c", "ifconfig "+ifname).Output()
+		if err == nil {
+			ifconfig_output = out
+			break
+		}
+	}
+
+	if ifconfig_output == nil {
+		//fmt.Println("ERR: ", out)
+		log.Fatal("Error inspecting 'vagrant ssh ", host_name, " -c ' ; ")
 		//os.Exit(1)
 	}
 
-	for _, line := range strings.Split(string(out), "\n") { // for each line
+	for _, line := range strings.Split(string(ifconfig_output), "\n") { // for each line
 		if result := REGEX_IFCONFIG_ETH0_IPV4.FindStringSubmatch(line); result != nil {
 			return result[1]
 		}
