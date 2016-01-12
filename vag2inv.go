@@ -33,7 +33,7 @@ import (
 	"github.com/docopt/docopt-go"
 )
 
-const VERSION_NUMBER string = "0.1"
+const VERSION_NUMBER string = "0.2"
 
 type host_info struct {
 	name     string
