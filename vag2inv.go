@@ -73,7 +73,7 @@ Options:
                                 [default: false].
   -o, --old                   Compatible for Ansible 1.x;
                                 [default: false].
-  --vm                        Compatible for Ansible control machine that resides in VM;
+  --vm                        Dig into target VM to figure out its inet addr;
                                 [default: false].
   -p <dir>, --prefix <dir>    Rewrite the prefix part of the private key's path.
 
