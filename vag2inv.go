@@ -33,7 +33,7 @@ import (
 	"github.com/docopt/docopt-go"
 )
 
-const VERSION_NUMBER string = "0.2"
+const VERSION_NUMBER string = "0.3"
 
 type host_info struct {
 	name     string
@@ -58,7 +58,7 @@ var REGEX_HOST_ENTRY_DETAILS = regexp.MustCompile(`^\s+([^\s]+)\s+(.+)$`)
 
 var REGEX_PRIVATE_KEY_PATH = regexp.MustCompile(`^(.+)/(.vagrant/machines/.+/private_key)$`)
 
-var REGEX_IFCONFIG_ETH0_IPV4 = regexp.MustCompile(`^\s+inet addr:([^\s]+)\s.+$`)
+var REGEX_IFCONFIG_ETH0_IPV4 = regexp.MustCompile(`^\s+inet (?:addr:)?([^\s]+)\s.+$`)
 
 const USAGE string = `Generate Ansible inventory file from Vagrant.
 
@@ -70,6 +70,8 @@ Usage:
 Options:
   -d, --stdout                Also dump to stdout.
   -f, --force                 Force overwrite inventory file;
+                                [default: false].
+  -o, --old                   Compatible for Ansible 1.x;
                                 [default: false].
   --vm                        Compatible for Ansible control machine that resides in VM;
                                 [default: false].
@@ -208,7 +210,7 @@ func parse_host_entry(host_entry string) host_info {
 func query_host_eth0_ipv4(host_name string) string {
 
 	var ifconfig_output []byte
-	for _, ifname := range []string{"enp0s3", "eth0"} {
+	for _, ifname := range []string{"enp0s8", "enp0s3", "eth1", "eth0"} {
 		out, err := exec.Command("vagrant", "ssh", host_name, "-c", "ifconfig "+ifname).Output()
 		if err == nil {
 			ifconfig_output = out
@@ -231,6 +233,9 @@ func query_host_eth0_ipv4(host_name string) string {
 }
 
 // It outputs inventory contents to external file, and optionally to stdout.
+//
+// NOTE: Ansible 2.0 has deprecated the “ssh” in ansible_ssh_* variables.
+//       @see http://docs.ansible.com/ansible/intro_inventory.html
 func output_file(arguments map[string]interface{}, ssh_config []host_info) {
 	to_stdout := arguments["--stdout"].(bool)
 	inv_file := arguments["<inventory_filename>"].(string)
@@ -258,13 +263,21 @@ func output_file(arguments map[string]interface{}, ssh_config []host_info) {
 				host_entry.port = "22"
 			}
 
-			str = fmt.Sprintf(
-				"%s ansible_ssh_host=%s ansible_host=%s ansible_ssh_port=%s ansible_port=%s ansible_ssh_user=%s ansible_user=%s ansible_ssh_pass=vagrant\n",
-				host_entry.name,
-				host_entry.addr, host_entry.addr,
-				host_entry.port, host_entry.port,
-				host_entry.user, host_entry.user)
-
+			if arguments["--old"].(bool) {
+				str = fmt.Sprintf(
+					"%s ansible_ssh_host=%s ansible_ssh_port=%s ansible_ssh_user=%s ansible_ssh_pass=vagrant\n",
+					host_entry.name,
+					host_entry.addr,
+					host_entry.port,
+					host_entry.user)
+			} else {
+				str = fmt.Sprintf(
+					"%s ansible_host=%s ansible_port=%s ansible_user=%s ansible_ssh_pass=vagrant\n",
+					host_entry.name,
+					host_entry.addr,
+					host_entry.port,
+					host_entry.user)
+			}
 		} else {
 			private_key_file := host_entry.key_file
 			if arguments["--prefix"] != nil {
@@ -274,15 +287,21 @@ func output_file(arguments map[string]interface{}, ssh_config []host_info) {
 				}
 			}
 
-			// Ansible 2.0 has deprecated the “ssh” in ansible_ssh_* variables.
-			// @see http://docs.ansible.com/ansible/intro_inventory.html
-			str = fmt.Sprintf(
-				"%s ansible_ssh_host=%s ansible_host=%s ansible_ssh_port=%s ansible_port=%s ansible_ssh_user=%s ansible_user=%s ansible_ssh_private_key_file=%s\n",
-				host_entry.name,
-				host_entry.addr, host_entry.addr,
-				host_entry.port, host_entry.port,
-				host_entry.user, host_entry.user,
-				private_key_file)
+			if arguments["--old"].(bool) {
+				str = fmt.Sprintf(
+					"%s ansible_ssh_host=%s ansible_ssh_port=%s ansible_ssh_user=%s ansible_ssh_pass=vagrant\n",
+					host_entry.name,
+					host_entry.addr,
+					host_entry.port,
+					host_entry.user)
+			} else {
+				str = fmt.Sprintf(
+					"%s ansible_host=%s ansible_port=%s ansible_user=%s ansible_ssh_pass=vagrant\n",
+					host_entry.name,
+					host_entry.addr,
+					host_entry.port,
+					host_entry.user)
+			}
 		}
 
 		// output...

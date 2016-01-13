@@ -41,7 +41,9 @@ Options:
   -d, --stdout                Also dump to stdout.
   -f, --force                 Force overwrite inventory file;
                                 [default: false].
-  --vm                        Compatible for Ansible control machine that resides in VM;
+  -o, --old                   Compatible for Ansible 1.x;
+                                [default: false].
+  --vm                        Dig into target VM to figure out its inet addr;
                                 [default: false].
   -p <dir>, --prefix <dir>    Rewrite the prefix part of the private key's path.
 
@@ -118,7 +120,7 @@ In the `examples/multiple` directory:
 
 For platforms *with* or *without* native Ansible support, including Windows.
 
-This guide demonstrates how to use a Ansible-in-VM as the Ansible control machine (refer to the "[Vagrant Box for Ansible Control Machine](https://github.com/William-Yeh/ansible-vagrantbox)" project for more information).
+This guide demonstrates how to **use an Ansible-in-VM as the control machine** (refer to the "[Vagrant Box for Ansible Control Machine](https://github.com/William-Yeh/ansible-vagrantbox)" project for more information). In this case, target managed nodes cannot be reached at `127.0.0.1`. Therefore, we need **vag2inv**'s `--vm` mode to dig further into the target VM's inet address.
 
 
 #### Single managed node
@@ -216,6 +218,8 @@ It will place the `vag2inv-i386.exe`, `vag2inv-x86_64.exe`, etc. executables int
 
 
 ## History
+
+- 0.3 - Make Ansible 2 inventory file as default; fix for `private_network` setting.
 
 - 0.2 - Also check "enp0s3" (in addition to "eth0").
 
